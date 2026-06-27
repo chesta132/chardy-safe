@@ -22,6 +22,7 @@ export default defineConfig({
         display: "standalone",
         background_color: "#000000",
         theme_color: "#000000",
+        lang: "en",
         icons: [
           {
             src: "favicon-96x96.png",
@@ -56,12 +57,33 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
+        // desktop: "Open with" from file manager
+        file_handlers: [
+          {
+            action: "/file",
+            accept: {
+              "application/octet-stream": [".enc"],
+              "text/*": [".txt", ".md", ".csv", ".json", ".xml", ".yaml", ".yml", ".log", ".env", ".html", ".htm", ".css"],
+              "application/javascript": [".js", ".ts", ".jsx", ".tsx", ".mjs"],
+              "application/json": [".json"],
+              "application/pdf": [".pdf"],
+              "application/zip": [".zip", ".rar", ".7z", ".tar", ".gz"],
+              "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"],
+              "audio/*": [".mp3", ".wav", ".ogg"],
+              "video/*": [".mp4", ".webm", ".ogv"],
+              "font/*": [".ttf", ".woff", ".woff2"],
+              "application/wasm": [".wasm"],
+              "application/x-sqlite3": [".db", ".sqlite"],
+            },
+          },
+        ],
+        // mobile: "Share" from other apps
         share_target: {
           action: "/file",
           method: "POST",
           enctype: "multipart/form-data",
           params: {
-            files: [{ name: "file", accept: ["*/*"] }],
+            files: [{ name: "file", accept: ["image/*", "video/*", "audio/*", "text/*", "application/*", ".enc"] }],
           },
         },
       },

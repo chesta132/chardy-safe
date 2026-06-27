@@ -10,7 +10,7 @@ cleanupOutdatedCaches();
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // intercept the share target POST
+  // intercept share target POST (from Android/mobile share sheet)
   if (url.pathname === "/file" && event.request.method === "POST") {
     event.respondWith(handleShareTarget(event.request));
     return;
@@ -19,11 +19,28 @@ self.addEventListener("fetch", (event) => {
 
 async function handleShareTarget(request: Request): Promise<Response> {
   const formData = await request.formData();
+  const file = formData.get("file") as File | null;
+  console.log(file);
+  if (!file) return Response.redirect("/file", 303);
 
-  // stash formData in cache so the page can pick it up
-  const cache = await caches.open("share-target");
-  await cache.put("shared-file", new Response(formData));
+  // convert to base64 so we can safely store in cache
+  const buffer = await file.arrayBuffer();
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
 
-  // redirect to /file with a marker so useShareTarget knows to check the cache
-  return Response.redirect("/file?share-target", 303);
+  const payload = JSON.stringify({
+    name: file.name,
+    type: file.type,
+    data: base64,
+  });
+
+  const cache = await caches.open("files");
+  await cache.put(
+    "incoming-file",
+    new Response(payload, {
+      headers: { "Content-Type": "application/json" },
+    }),
+  );
+
+  // redirect to /file with marker so useIncomingFile knows to check cache
+  return Response.redirect("/file?incoming-file", 303);
 }
