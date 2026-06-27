@@ -1,11 +1,17 @@
 /// <reference lib="webworker" />
-import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
+import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from "workbox-precaching";
+import { NavigationRoute, registerRoute } from "workbox-routing";
 
 declare const self: ServiceWorkerGlobalScope;
 
 // injected by vite-plugin-pwa at build time
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
+
+// handle SPA navigation offline
+const handler = createHandlerBoundToURL("/index.html");
+const navigationRoute = new NavigationRoute(handler);
+registerRoute(navigationRoute);
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
