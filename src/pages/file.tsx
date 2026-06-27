@@ -8,6 +8,7 @@ import { PasswordInput } from "../components/ui/password-input";
 import { Dropzone } from "../components/ui/dropzone";
 import { FilePreview } from "../components/ui/file-preview";
 import { Header } from "../components/ui/header";
+import { useShareTarget } from "../hooks/useShareTarget";
 
 type Mode = "encrypt" | "decrypt";
 
@@ -43,6 +44,15 @@ export const FilePage = () => {
   const handleFile = useCallback((file: File) => {
     setFileState({ file });
   }, []);
+
+  // handle file shared from another app via Web Share Target
+  const handleSharedFile = useCallback((file: File, sharedMode: Mode) => {
+    setMode(sharedMode);
+    setFileState({ file });
+    setPassword("");
+  }, []);
+
+  useShareTarget({ onFile: handleSharedFile });
 
   const switchMode = (m: Mode) => {
     setMode(m);
