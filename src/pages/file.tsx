@@ -69,7 +69,7 @@ export const FilePage = () => {
     setLoading(true);
     try {
       const encrypted = await encryptFile(fileState.file, password);
-      const result = {
+      const result: FileResult = {
         buffer: encrypted,
         mime: "application/octet-stream",
         name: `${unixNow()}-${trimExt(fileState.file.name)}.enc`,
@@ -85,11 +85,6 @@ export const FilePage = () => {
     }
   };
 
-  const handleEncryptAndDownload = async () => {
-    const result = await handleEncrypt();
-    if (result) handleDownloadResult(result);
-  };
-
   const handleDecrypt = async () => {
     if (!fileState || !password) {
       if (!password) toast.error("Password is required");
@@ -98,23 +93,25 @@ export const FilePage = () => {
     setLoading(true);
     try {
       const buffer = await fileState.file.arrayBuffer();
-      const result = await decryptFile(buffer, password);
-      if (!result.success) throw result.error;
+      const decrypted = await decryptFile(buffer, password);
+      if (!decrypted.success) throw decrypted.error;
 
-      const { data, header } = result.data;
-      setFileState(
-        (prev) =>
-          prev && {
-            ...prev,
-            result: { buffer: data, mime: header.mime, name: header.name },
-          },
-      );
+      const { data, header } = decrypted.data;
+      const result: FileResult = { buffer: data, mime: header.mime, name: header.name };
+
+      setFileState((prev) => prev && { ...prev, result });
       toast.success("File decrypted");
+      return result;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Decryption failed");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCryptoAndDownload = async (mode: Mode) => {
+    const result = mode === "encrypt" ? await handleEncrypt() : await handleDecrypt();
+    if (result) handleDownloadResult(result);
   };
 
   const handleDownloadResult = (result?: FileResult) => {
@@ -188,15 +185,13 @@ export const FilePage = () => {
             >
               {loading ? (mode === "encrypt" ? "Encrypting..." : "Decrypting...") : mode === "encrypt" ? "Encrypt" : "Decrypt"}
             </button>
-            {mode === "encrypt" && (
-              <button
-                onClick={handleEncryptAndDownload}
-                disabled={!fileState || loading}
-                className="w-full py-2.5 rounded-md border border-accent text-sm font-medium text-text bg-bg hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-              >
-                {loading ? "Encrypting..." : "Encrypt & Download"}
-              </button>
-            )}
+            <button
+              onClick={() => handleCryptoAndDownload(mode)}
+              disabled={!fileState || loading}
+              className="w-full py-2.5 rounded-md border border-accent text-sm font-medium text-text bg-bg hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+            >
+              {loading ? (mode === "encrypt" ? "Encrypting..." : "Decrypting...") : mode === "encrypt" ? "Encrypt & Download" : "Decrypt & Download"}
+            </button>
           </div>
 
           {/* result section */}
