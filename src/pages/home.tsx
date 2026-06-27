@@ -6,6 +6,7 @@ import { timeInMs } from "../libs/manipulate/number";
 import { Textarea } from "../components/ui/textarea";
 import { PasswordInput } from "../components/ui/password-input";
 import { Header } from "../components/ui/header";
+import { Footer } from "../components/ui/footer";
 
 const INPUT_DEBOUNCE = timeInMs({ second: 1 });
 
@@ -99,10 +100,7 @@ export const Home = () => {
         </div>
       </main>
 
-      {/* footer */}
-      <footer className="border-t border-border px-6 py-4 text-center">
-        <span className="text-xs text-text-muted">chardy safe · all processing is done locally</span>
-      </footer>
+      <Footer />
     </div>
   );
 };

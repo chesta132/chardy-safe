@@ -10,6 +10,7 @@ import { FilePreview } from "../components/ui/file-preview";
 import { Header } from "../components/ui/header";
 import { useIncomingFile } from "../hooks/useIncomingFile";
 import { trimExt } from "../libs/file";
+import { Footer } from "../components/ui/footer";
 
 type Mode = "encrypt" | "decrypt";
 
@@ -215,9 +216,7 @@ export const FilePage = () => {
         </div>
       </main>
 
-      <footer className="border-t border-border px-6 py-4 text-center">
-        <span className="text-xs text-text-muted">chardy safe · all processing is done locally</span>
-      </footer>
+      <Footer />
     </div>
   );
 };
