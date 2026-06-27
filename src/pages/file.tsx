@@ -9,6 +9,7 @@ import { Dropzone } from "../components/ui/dropzone";
 import { FilePreview } from "../components/ui/file-preview";
 import { Header } from "../components/ui/header";
 import { useIncomingFile } from "../hooks/useIncomingFile";
+import { trimExt } from "../libs/file";
 
 type Mode = "encrypt" | "decrypt";
 
@@ -71,7 +72,7 @@ export const FilePage = () => {
       const result = {
         buffer: encrypted,
         mime: "application/octet-stream",
-        name: `${unixNow()}-${fileState.file.name}.enc`,
+        name: `${unixNow()}-${trimExt(fileState.file.name)}.enc`,
       };
       setFileState((prev) => prev && { ...prev, result });
       toast.success("File encrypted");
